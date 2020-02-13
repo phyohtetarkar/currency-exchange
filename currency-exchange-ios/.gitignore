@@ -1,0 +1,10 @@
+*~
+.DS_Store
+xcuserdata/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+.build/
+Carthage/Checkouts
+Carthage/Build/
