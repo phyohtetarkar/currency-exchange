@@ -39,8 +39,16 @@ final class CurrenciesData: ObservableObject {
                     
                     for attr in mirror.children {
                         if let short = attr.label, let name = currencies[short] {
-                            let rate = ExchangeRate(short: short, name: name, amount: attr.value as! String)
                             
+                            var amt = attr.value as! String
+                            
+                            let excepts = ["JPY", "KHR", "IDR", "KRW", "LAK", "VND"]
+                            
+                            if excepts.contains(short) {
+                                amt = String(format: "%.3f", (Double(amt.replacingOccurrences(of: ",", with: "")) ?? 0.0) / 100)
+                            }
+                            
+                            let rate = ExchangeRate(short: short, name: name, amount: amt)
                             list.append(rate)
                         }
                     }
