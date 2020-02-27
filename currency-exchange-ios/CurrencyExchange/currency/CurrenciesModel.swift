@@ -23,16 +23,19 @@ struct ExchangeData: Decodable {
 }
 
 struct Rates: Decodable {
+    var EUR: String
+    var GBP: String
     var USD: String
+    var SGD: String
+    var THB: String
+    var MYR: String
     var PHP: String
     var KRW: String
     var VND: String
     var HKD: String
     var BRL: String
     var RSD: String
-    var MYR: String
     var CAD: String
-    var GBP: String
     var SEK: String
     var NOK: String
     var ILS: String
@@ -42,19 +45,16 @@ struct Rates: Decodable {
     var KWD: String
     var INR: String
     var BND: String
-    var EUR: String
     var ZAR: String
     var NPR: String
     var CNY: String
     var CHF: String
     var KES: String
-    var THB: String
     var PKR: String
     var EGP: String
     var BDT: String
     var SAR: String
     var LAK: String
-    var SGD: String
     var IDR: String
     var KHR: String
     var LKR: String

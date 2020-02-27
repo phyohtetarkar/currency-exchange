@@ -12,20 +12,26 @@ import Alamofire
 
 final class CurrenciesData: ObservableObject {
     
-    private let API_URL = "https://forex.cbm.gov.mm/api/latest"
+    private static let API_URL = "https://forex.cbm.gov.mm/api/latest"
+    private static let excepts = ["JPY", "KHR", "IDR", "KRW", "LAK", "VND"]
+    
+    private let dateFormatter = DateFormatter()
     
     @Published var loading = false
+    @Published var error = false
     @Published var searchText = ""
+    @Published var lastUpdated = ""
     @Published var rates = [ExchangeRate]()
     
     init() {
         findLatestExchangeRates()
+        dateFormatter.dateFormat = "yyyy/MM/dd hh:mm a"
     }
     
     func findLatestExchangeRates() {
         loading = true
         
-        AF.request(API_URL).responseString { [weak self] resp in
+        AF.request(CurrenciesData.API_URL).responseString { [weak self] resp in
             self?.loading = false
             
             switch resp.result {
@@ -42,22 +48,30 @@ final class CurrenciesData: ObservableObject {
                             
                             var amt = attr.value as! String
                             
-                            let excepts = ["JPY", "KHR", "IDR", "KRW", "LAK", "VND"]
-                            
-                            if excepts.contains(short) {
+                            if CurrenciesData.excepts.contains(short) {
                                 amt = String(format: "%.3f", (Double(amt.replacingOccurrences(of: ",", with: "")) ?? 0.0) / 100)
                             }
                             
                             let rate = ExchangeRate(short: short, name: name, amount: amt)
                             list.append(rate)
+                            
                         }
                     }
+                    
+                    if let unixTimestamp = Double(result.timestamp) {
+                        let date = Date(timeIntervalSince1970: unixTimestamp)
+                        self?.lastUpdated = self?.dateFormatter.string(from: date) ?? ""
+                    }                    
+                    
+                    self?.error = false
                     self?.rates = list
                 } catch {
+                    self?.error = true
                     //print("Error decoding job positions \(decodeError)")
                     print(error.localizedDescription)
                 }
             case .failure(let error):
+                self?.error = true
                 print(error.localizedDescription)
             }
         }

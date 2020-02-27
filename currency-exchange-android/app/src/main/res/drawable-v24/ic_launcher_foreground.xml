@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M37.5 5c-20.711 0-37.5 16.789-37.5 37.5s16.789 37.5 37.5 37.5c20.711 0 37.5-16.789 37.5-37.5s-16.789-37.5-37.5-37.5zM37.5 72.5c-16.569 0-30-13.431-30-30s13.431-30 30-30c16.569 0 30 13.431 30 30s-13.431 30-30 30zM40 40v-10h10v-5h-10v-5h-5v5h-10v20h10v10h-10v5h10v5h5v-5h10l-0-20h-10zM35 40h-5v-10h5v10zM45 55h-5v-10h5v10z"
+        android:strokeWidth="1"
+        android:strokeColor="#00000000" />
+</vector>
