@@ -12,7 +12,7 @@ import Alamofire
 
 final class CurrenciesData: ObservableObject {
     
-    private static let API_URL = "https://forex.cbm.gov.mm/api/latest"
+    private static let API_URL = "http://forex.cbm.gov.mm/api/latest"
     private static let excepts = ["JPY", "KHR", "IDR", "KRW", "LAK", "VND"]
     
     private let dateFormatter = DateFormatter()
@@ -30,50 +30,88 @@ final class CurrenciesData: ObservableObject {
     
     func findLatestExchangeRates() {
         loading = true
+        error = false
         
-        AF.request(CurrenciesData.API_URL).responseString { [weak self] resp in
+        AF.request(CurrenciesData.API_URL).responseDecodable(of: ExchangeData.self) { [weak self] resp in
             self?.loading = false
             
-            switch resp.result {
-            case .success(let value):
-                do {
-                    let json = value as String
-                    let result = try JSONDecoder().decode(ExchangeData.self, from: json.data(using: .utf8)!)
-                    
-                    let mirror = Mirror(reflecting: result.rates)
-                    var list = [ExchangeRate]()
-                    
-                    for attr in mirror.children {
-                        if let short = attr.label, let name = currencies[short] {
-                            
-                            var amt = attr.value as! String
-                            
-                            if CurrenciesData.excepts.contains(short) {
-                                amt = String(format: "%.3f", (Double(amt.replacingOccurrences(of: ",", with: "")) ?? 0.0) / 100)
-                            }
-                            
-                            let rate = ExchangeRate(short: short, name: name, amount: amt)
-                            list.append(rate)
-                            
-                        }
-                    }
-                    
-                    if let unixTimestamp = Double(result.timestamp) {
-                        let date = Date(timeIntervalSince1970: unixTimestamp)
-                        self?.lastUpdated = self?.dateFormatter.string(from: date) ?? ""
-                    }                    
-                    
-                    self?.error = false
-                    self?.rates = list
-                } catch {
-                    self?.error = true
-                    //print("Error decoding job positions \(decodeError)")
-                    print(error.localizedDescription)
-                }
-            case .failure(let error):
+            if let err = resp.error {
+                print(err)
                 self?.error = true
-                print(error.localizedDescription)
+                return
+            }
+            
+            if let result = resp.value {
+                let mirror = Mirror(reflecting: result.rates)
+                var list = [ExchangeRate]()
+                
+                for attr in mirror.children {
+                    if let short = attr.label, let name = currencies[short] {
+                        
+                        var amt = attr.value as! String
+                        
+                        if CurrenciesData.excepts.contains(short) {
+                            amt = String(format: "%.3f", (Double(amt.replacingOccurrences(of: ",", with: "")) ?? 0.0) / 100)
+                        }
+                        
+                        let rate = ExchangeRate(short: short, name: name, amount: amt)
+                        list.append(rate)
+                        
+                    }
+                }
+                
+                if let unixTimestamp = Double(result.timestamp) {
+                    let date = Date(timeIntervalSince1970: unixTimestamp)
+                    self?.lastUpdated = self?.dateFormatter.string(from: date) ?? ""
+                }
+                
+                self?.rates = list
             }
         }
+        
+//        AF.request(CurrenciesData.API_URL).responseString { [weak self] resp in
+//            self?.loading = false
+//
+//            switch resp.result {
+//            case .success(let value):
+//                do {
+//                    let json = value as String
+//                    let result = try JSONDecoder().decode(ExchangeData.self, from: json.data(using: .utf8)!)
+//
+//                    let mirror = Mirror(reflecting: result.rates)
+//                    var list = [ExchangeRate]()
+//
+//                    for attr in mirror.children {
+//                        if let short = attr.label, let name = currencies[short] {
+//
+//                            var amt = attr.value as! String
+//
+//                            if CurrenciesData.excepts.contains(short) {
+//                                amt = String(format: "%.3f", (Double(amt.replacingOccurrences(of: ",", with: "")) ?? 0.0) / 100)
+//                            }
+//
+//                            let rate = ExchangeRate(short: short, name: name, amount: amt)
+//                            list.append(rate)
+//
+//                        }
+//                    }
+//
+//                    if let unixTimestamp = Double(result.timestamp) {
+//                        let date = Date(timeIntervalSince1970: unixTimestamp)
+//                        self?.lastUpdated = self?.dateFormatter.string(from: date) ?? ""
+//                    }
+//
+//                    self?.error = false
+//                    self?.rates = list
+//                } catch {
+//                    self?.error = true
+//                    //print("Error decoding job positions \(decodeError)")
+//                    print(error.localizedDescription)
+//                }
+//            case .failure(let error):
+//                self?.error = true
+//                print(error.localizedDescription)
+//            }
+//        }
     }
 }

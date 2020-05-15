@@ -44,14 +44,19 @@ struct CurrencyList: View {
 //                    CurrencyRow(rate: ExchangeRate(short: "THB", name: "Thai Baht", amount: "46.466"))
                 }
                 .navigationBarTitle("Exchange Rates")
-                .navigationBarItems(trailing: Button(action: {
-                    self.data.findLatestExchangeRates()
-                }, label: {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.headline)
-                }))
+                .navigationBarItems(trailing: NavigationLink(destination: AboutView()) {
+                        Text("About")
+                    }
+                )
                 .alert(isPresented: $data.error, content: {
-                        Alert(title: Text("Error"), message: Text("Network error."), dismissButton: Alert.Button.cancel())
+                    Alert(
+                        title: Text("Error"),
+                        message: Text("Something went wrong. Please try again."),
+                        dismissButton:
+                            Alert.Button.default(Text("Reload")) {
+                                self.data.findLatestExchangeRates()
+                            }
+                    )
                 })
                 
                 Divider()
